@@ -1,0 +1,39 @@
+.data
+result_str: .asciz "\n"
+
+.text
+# Leitura do número 'a'
+li a7, 5
+ecall
+mv t0, a0  # Move o valor lido para t0
+
+# Leitura do número 'b'
+li a7, 5
+ecall
+mv t1, a0  # Move o valor lido para t1
+
+# Soma de 'a' e 'b'
+add t2, t0, t1
+
+# Imprimir o resultado da soma
+li a7, 1
+mv a0, t2  # Coloca o resultado no registrador de argumento
+ecall
+
+# Imprimir uma nova linha
+li a7, 4
+la a0, result_str
+ecall
+
+# Subtração de 'a' e 'b'
+sub t3, t0, t1
+
+# Imprimir o resultado da subtração
+li a7, 1
+mv a0, t3  # Coloca o resultado no registrador de argumento
+ecall
+
+# Imprimir uma nova linha
+li a7, 4
+la a0, result_str
+ecall

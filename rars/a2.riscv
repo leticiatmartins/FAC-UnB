@@ -1,0 +1,174 @@
+.data
+result_str: .asciz "\n"
+msg_str: .asciz "ADD: "
+msg_str1: .asciz "SUB: "
+msg_str2: .asciz "AND: "
+msg_str3: .asciz "OR: "
+msg_str4: .asciz "XOR: "
+msg_str5: .asciz "MASK: "
+msg_str6: .asciz "SLL("
+msg_str7: .asciz "): "
+msg_str8: .asciz "SRL("
+invalid_str: .asciz "Número inválido\n"
+
+.text
+main:
+   # Leitura do número 'a'
+    li a7, 5
+    ecall
+    mv t0, a0  # Move o valor lido para t0
+    li t6, 255  # Carrega o valor 255 em t6
+    bge t0, t6, invalid  # Verifica se t0 >= 255
+
+    # Leitura do número 'b'
+    li a7, 5
+    ecall
+    mv t1, a0  # Move o valor lido para t1
+    li t6, 255  # Carrega o valor 255 em t6
+    bge t1, t6, invalid  # Verifica se t1 >= 255
+
+    # Leitura do número 'c'
+    li a7, 5
+    ecall
+    mv a2, a0  # Move o valor lido para a2
+    li t6, 255  # Carrega o valor 255 em t6
+    bge a2, t6, invalid  # Verifica se a2 >= 255
+
+    # Soma de 'a' e 'b'
+    add t2, t0, t1
+
+    # Imprimir a mensagem e o resultado da soma
+    li a7, 4
+    la a0, msg_str
+    ecall
+    li a7, 1
+    mv a0, t2  # Coloca o resultado no registrador de argumento
+    ecall
+    li a7, 4
+    la a0, result_str
+    ecall
+
+    # Subtração de 'a' e 'b'
+    sub t3, t0, t1
+
+    # Imprimir a mensagem e o resultado da subtração
+    li a7, 4
+    la a0, msg_str1
+    ecall
+    li a7, 1
+    mv a0, t3  # Coloca o resultado no registrador de argumento
+    ecall
+    li a7, 4
+    la a0, result_str
+    ecall
+
+    # Operação lógica AND entre 'a' e 'b'
+    and t4, t0, t1
+
+    # Imprimir a mensagem e o resultado da operação AND
+    li a7, 4
+    la a0, msg_str2
+    ecall
+    li a7, 1
+    mv a0, t4  # Coloca o resultado no registrador de argumento
+    ecall
+    li a7, 4
+    la a0, result_str
+    ecall
+
+    # Operação lógica OR entre 'a' e 'b'
+    or t5, t0, t1
+
+    # Imprimir a mensagem e o resultado da operação OR
+    li a7, 4
+    la a0, msg_str3
+    ecall
+    li a7, 1
+    mv a0, t5  # Coloca o resultado no registrador de argumento
+    ecall
+    li a7, 4
+    la a0, result_str
+    ecall
+
+    # Operação lógica XOR entre 'a' e 'b'
+    xor t6, t0, t1
+
+    # Imprimir a mensagem e o resultado da operação XOR
+    li a7, 4
+    la a0, msg_str4
+    ecall
+    li a7, 1
+    mv a0, t6  # Coloca o resultado no registrador de argumento
+    ecall
+    li a7, 4
+    la a0, result_str
+    ecall
+
+    # Operação lógica AND entre 'c' e 31
+    andi a3, a2, 31
+
+    # Imprimir a mensagem e o resultado da operação AND para 'c'
+    li a7, 4
+    la a0, msg_str5
+    ecall
+    li a7, 1
+    mv a0, a3  # Coloca o resultado no registrador de argumento
+    ecall
+    li a7, 4
+    la a0, result_str
+    ecall
+
+    # Deslocamento de 'a' à esquerda por 'm' bits
+    sll t0, t0, a3
+
+    # Imprimir a mensagem e o resultado do deslocamento à esquerda
+    li a7, 4
+    la a0, msg_str6
+    ecall
+    li a7, 1
+    mv a0, a3  # Coloca o resultado no registrador de argumento
+    ecall
+    li a7, 4
+    la a0, msg_str7
+    ecall
+    li a7, 1
+    mv a0, t0  # Coloca o resultado no registrador de argumento
+    ecall
+    li a7, 4
+    la a0, result_str
+    ecall
+
+    # Deslocamento de 'b' à direita por 'm' bits
+    srl t1, t1, a3
+
+    # Imprimir a mensagem e o resultado do deslocamento à direita
+    li a7, 4
+    la a0, msg_str8
+    ecall
+    li a7, 1
+    mv a0, a3  # Coloca o resultado no registrador de argumento
+    ecall
+    li a7, 4
+    la a0, msg_str7
+    ecall
+    li a7, 1
+    mv a0, t1  # Coloca o resultado no registrador de argumento
+    ecall
+    li a7, 4
+    la a0, result_str
+    ecall
+
+    # Finalize o programa
+    li a7, 10
+    ecall
+
+invalid:
+    # Se um número for inválido, imprime a mensagem "Número inválido"
+    li a7, 4
+    la a0, invalid_str
+    ecall
+    j exit
+
+exit:
+    li a7, 10
+    ecall

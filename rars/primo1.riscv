@@ -1,0 +1,58 @@
+.data
+quebra: .asciz "\n"
+sim: .asciz "sim"
+nao: .asciz "nao"
+inval: .asciz "Entrada invalida."
+
+.text
+main:
+li a7, 5 
+ecall 
+mv t0, a0 
+			
+# Se o número não pertence ao conjunto dos naturais, é inválido
+blez t0, invalido
+
+			
+li t1, 1 
+li t2, 0
+li t4, 2 
+
+loop:
+rem t3, t0, t1
+beqz t3, verdadeiro 
+addi t1, t1, 1
+j teste
+	
+verdadeiro:
+addi t2, t2, 1 
+addi t1, t1, 1 
+	
+teste:
+ble t1, t0, loop 
+	
+beq t2, t4, primo
+j nao_Primo
+
+invalido:
+li a7, 4 
+la a0, inval 
+ecall 
+j exit
+
+nao_Primo:
+li a7, 4 
+la a0, nao 
+ecall
+j exit
+
+primo:
+li a7, 4 
+la a0, sim
+ecall 
+j exit
+
+exit:
+li a7, 4 
+la a0, quebra 
+ecall

@@ -1,0 +1,141 @@
+.data
+    result_str: .asciz "\n"
+    prompt: .asciz "Digite tres numeros inteiros positivos (menores que 65535): "
+    invalid_input: .asciz "Entradas invalidas.\n"
+    not_prime: .asciz "O modulo nao eh primo.\n"
+    output_format: .asciz "A exponencial modular %d elevado a %d (mod %d) eh %d.\n"
+
+.text
+    .align 2
+    .globl main
+
+main:
+    # Imprimir o prompt
+    la a0, prompt
+    li a7, 4
+    ecall
+
+    # Lendo os três números inteiros
+    li a7, 5
+    ecall
+    mv s0, a0
+
+    li a7, 5
+    ecall
+    mv s1, a0
+
+    li a7, 5
+    ecall
+    mv s2, a0
+
+    # Verificando se os números estão no intervalo especificado
+    bnez s0, check_s1
+    j invalid_input
+
+check_s1:
+    bnez s1, check_s2
+    j invalid_input
+
+check_s2:
+    bnez s2, check_modulo
+    j invalid_input
+
+check_modulo:
+    bgt s2, 65535, invalid_input
+
+    # Verificando se N3 é primo
+    jal ra, is_prime
+    bnez a0, not_prime
+
+    # Calculando a exponenciação modular
+    jal ra, mod_exp
+    mv s3, a0
+
+    # Imprimindo o resultado
+    la a0, output_format
+    li a7, 4
+    ecall
+
+    # Saindo do programa
+    li a7, 10
+    ecall
+
+invalid_input:
+    # Imprimindo mensagem de entrada inválida
+    la a0, invalid_input
+    li a7, 4
+    ecall
+
+    # Saindo do programa
+    li a7, 10
+    ecall
+
+not_prime:
+    # Imprimindo mensagem de N3 não primo
+    la a0, not_prime
+    li a7, 4
+    ecall
+
+    # Saindo do programa
+    li a7, 10
+    ecall
+
+# Função para calcular a exponenciação modular
+mod_exp:
+    # Argumentos: a0 = base, a1 = exp, a2 = mod
+    li t0, 1          # result
+    remu a0, a0, a2   # base = base % mod
+
+    loop_mod_exp:
+        # Se exp for ímpar, multiplica base com resultado
+        remu t1, a1, 2
+        bnez t1, multiply_mod_exp
+
+        # Agora exp é par, divide por 2 e atualiza base
+        divu a1, a1, 2
+        remu a0, a0, a2
+        j square_mod_exp
+
+    multiply_mod_exp:
+        mul t0, t0, a0
+        remu t0, t0, a2
+        j square_mod_exp
+
+    square_mod_exp:
+        mul a0, a0, a0
+        remu a0, a0, a2
+
+        bnez a1, loop_mod_exp
+
+    # Retornando o resultado
+    mv a0, t0
+    ret
+
+# Função para verificar se um número é primo
+is_prime:
+    # Argumento: a0 = n
+    bnez a0, check_is_prime
+
+    # 0 e 1 não são primos
+    li a0, 0
+    ret
+
+check_is_prime:
+    li t0, 2
+
+    loop_is_prime:
+        blt t0, a0, end_loop_is_prime
+        remu t1, a0, t0
+        beqz t1, not_prime_is_prime
+
+        addi t0, t0, 1
+        j loop_is_prime
+
+    not_prime_is_prime:
+        li a0, 0
+        ret
+
+end_loop_is_prime:
+    li a0, 1
+    ret
+s

@@ -1,0 +1,94 @@
+.data
+buffer: .space 64
+newline: .asciz "\n"
+str1: .space 200
+
+.text
+.globl _start
+
+_start:
+    # Leitura da operação (M/m)
+    li a0, 0         # Descritor de arquivo stdin
+    la a1, buffer    # Endereço do buffer
+    li a2, 1         # Tamanho a ser lido (1 byte)
+    li a7, 63        # Chamada de sistema para 'read'
+    ecall
+
+
+    # Lê o tamanho das strings
+    li a7, 5
+    ecall
+    mv a1, a0
+    mv s1, a0
+
+    # Lê a string 1
+    li a7, 4
+    la a0, str1
+    li a1, 200
+    ecall
+    mv t1, a0
+
+    # Converte o tamanho lido para um número
+    lb a4, 0(a1)     # Caractere das dezenas
+    li t0, 10
+    sub a4, a4, zero  # Subtrai o valor ASCII do caractere '0'
+    mul a4, a4, t0   # Multiplica por 10
+
+    addi a1, a1, 1   # Avança para o próximo caractere (unidades)
+    lb a5, 0(a1)     # Caractere das unidades
+    sub a5, a5, zero  # Subtrai o valor ASCII do caractere '0'
+    add a4, a4, a5   # Soma dezenas e unidades
+
+    # Leitura da terceira linha (a string)
+    li a0, 0
+    mv t0, a4        # Move o valor de a4 para t0
+    la a1, buffer
+    li a7, 4        # Tamanho da string a ser lida
+    li a7, 63
+    ecall
+
+    # Seleciona a operação
+    lb a6, -100(a1)   # Carregue o caractere da memória
+
+    # Carregue os valores ASCII para 'M' e 'm' em registradores
+    li t1, 77  # ASCII para 'M'
+    li t2, 109 # ASCII para 'm'
+
+    # Aplica a operação correspondente
+    beq a6, t1, to_upper  # Verifica se a6 é igual a 'M' (77)
+    beq a6, t2, to_lower # Verifica se a6 é igual a 'm' (109)
+
+exit:
+    # Saída do programa
+    li a7, 10         # Chamada de sistema para sair
+    ecall
+
+to_upper:
+    la a1, buffer     # Ponteiro para a string
+to_upper_loop:
+    lb a2, 0(a1)      # Caractere atual
+    beqz a2, done     # Se chegarmos ao final da string, saia
+    andi a2, a2, 0xDF # Converte para maiúscula (bit 5 definido)
+    sb a2, 0(a1)      # Substitui o caractere na string
+    addi a1, a1, 1    # Avança para o próximo caractere
+    j to_upper_loop
+
+to_lower:
+    la a1, buffer     # Ponteiro para a string
+to_lower_loop:
+    lb a2, 0(a1)      # Caractere atual
+    beqz a2, done     # Se chegarmos ao final da string, saia
+    ori a2, a2, 0x20  # Converte para minúscula (bit 5 resetado)
+    sb a2, 0(a1)      # Substitui o caractere na string
+    addi a1, a1, 1    # Avança para o próximo caractere
+    j to_lower_loop
+
+done:
+    # Escreve a string convertida na saída padrão
+    li a0, 1
+    la a1, buffer
+    li a7, 64
+    ecall
+
+    # Saída do programa
+    j exit
